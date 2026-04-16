@@ -1,0 +1,37 @@
+---
+description: 
+alwaysApply: true
+enabled: true
+updatedAt: 2026-04-16T03:03:55.802Z
+provider: 
+---
+
+## 开发工作流（严格按此流程）
+
+```
+git branch → openspec scaffold → brainstorming → writing-plans → executing-plans → openspec archive → git merge
+```
+
+| 阶段 | 工具 | 说明 |
+|------|------|------|
+| 1. 创建分支 | `git checkout -b feature/<name>` | 每个变更在独立分支上开发 |
+| 2. 脚手架 | `openspec-cn new change "<name>"` | 只创建变更目录和 `.openspec.yaml`，不填内容 |
+| 3. 设计 | `/superpowers:brainstorming` | 探索设计，产出写入 `openspec/changes/<name>/`（proposal.md、design.md、specs/、tasks.md） |
+| 4. 制定计划 | `/superpowers:writing-plans` | 在变更目录下生成实现计划 |
+| 5. 执行 | `/superpowers:executing-plans` | 代码变更 |
+| 6. 归档 | `/opsx:archive` | 变更移入 `openspec/changes/archive/` |
+| 7. 合并代码 | `git merge feature/<name>` | 合并回主分支，删除特性分支 |
+
+## OpenSpec 变更管理
+
+每个变更在 `openspec/changes/<name>/` 下包含：
+
+- `proposal.md` — 是什么、为什么
+- `design.md` — 如何做、架构决策、风险权衡
+- `specs/<feature>/spec.md` — 需求规格（场景式）
+- `tasks.md` — 实现任务清单
+
+相关命令：
+- `openspec-cn new change "<name>"` — 创建变更目录
+- `/opsx:apply` — 实施变更
+- `/opsx:archive` — 归档变更
