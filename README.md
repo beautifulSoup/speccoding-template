@@ -1,92 +1,236 @@
-# long-care
+# SpecCoding Template
 
-长护险全栈仓库
+[![License: MIT](https://img.shields.io/github/license/beautifulSoup/speccoding-template?style=flat-square&color=blue)](./LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/beautifulSoup/speccoding-template?style=flat-square&logo=github&color=yellow)](https://github.com/beautifulSoup/speccoding-template/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/beautifulSoup/speccoding-template?style=flat-square&logo=github&color=orange)](https://github.com/beautifulSoup/speccoding-template/network/members)
+[![Last Commit](https://img.shields.io/github/last-commit/beautifulSoup/speccoding-template?style=flat-square&color=green)](https://github.com/beautifulSoup/speccoding-template/commits/main)
+[![Template](https://img.shields.io/badge/use%20this-template-brightgreen?style=flat-square&logo=github)](https://github.com/beautifulSoup/speccoding-template/generate)
 
-## Getting started
+**基于 Claude Code + OpenSpec + Superpowers 三件套的全栈 AI 开发模板。**
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+> 让 AI 稳定交付全栈项目——告别"AI 改崩代码 / 失忆 / 跑偏"。
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+<p align="center">
+  <img src="./docs/wechat-qr.jpg" width="180" alt="微信公众号二维码" />
+  <br>
+  <sub>📣 扫码关注公众号 <b>TangoAI实验室</b>，每周更新 AI 开发实战干货</sub>
+</p>
 
-## Add your files
+---
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## 这是什么
+
+一套**可直接 Clone 即用**的项目骨架，实现文章《让 AI 稳定交付全栈项目》里讲的完整工作流：
+
+- ✅ **两级 Spec 体系**：`spec/` 管项目全局，`openspec/` 管单次变更
+- ✅ **七阶段工作流**：`git branch → scaffold → brainstorm → plan → execute → archive → merge`
+- ✅ **三工具协同**：Claude Code 执行、OpenSpec 规格、Superpowers 流程
+- ✅ **全栈骨架**：预留 backend / frontend / prototype 目录
+- ✅ **示例变更**：`openspec/changes/archive/` 里附一个完整示例，可直接照抄
+
+---
+
+## 快速开始
+
+### 1. 使用本模板
+
+**方式 A：GitHub「Use this template」** — 推荐，创建一个干净的新仓库
+
+**方式 B：Clone 后去掉历史**
+
+```bash
+git clone https://github.com/beautifulSoup/speccoding-template.git my-project
+cd my-project
+rm -rf .git
+git init && git add -A && git commit -m "chore: bootstrap from SpecCoding template"
+```
+
+### 2. 安装前置工具
+
+```bash
+# OpenSpec 中文版（核心规格管理工具）
+npm install -g @openspec-cn/cli
+
+# Claude Code
+npm install -g @anthropic-ai/claude-code
+
+# Superpowers skills（让 /superpowers:brainstorming 等命令可用）
+# 安装方式详见 Superpowers 项目文档
+```
+
+### 3. 定全局 Spec（Phase 0）
+
+按顺序填写：
+
+1. **`spec/requirements.md`** — 项目要做什么、解决什么问题
+2. **`spec/design.md`** — 技术栈、模块划分、数据模型、关键接口
+3. **`spec/tasks.md`** — 把项目拆成 10~30 个里程碑任务
+
+> 💡 这一步是 **人工主导 + AI 辅助**。让 AI 帮你梳理初稿，但最终架构决策必须你自己定。
+
+### 4. 单任务开发循环（Phase 1~N）
+
+每个 `tasks.md` 里的任务，走一次完整七阶段工作流：
+
+```bash
+# 1. 创建特性分支
+git checkout -b feature/add-user-auth
+
+# 2. 脚手架
+openspec-cn new change "add-user-auth"
+
+# 3. 设计 —— Claude Code 中运行
+/superpowers:brainstorming
+# → 产出 proposal.md / design.md / specs/ 写入 openspec/changes/add-user-auth/
+
+# 4. 计划
+/superpowers:writing-plans
+# → 产出的 plan.md 必须落到 openspec/changes/add-user-auth/plan.md
+#   ⚠️ 不要让它散落到仓库根或其他位置
+
+# 5. 执行
+/superpowers:executing-plans
+# → 严格按 openspec/changes/add-user-auth/plan.md 执行
+
+# 6. 归档
+/opsx:archive
+# → 整个 add-user-auth/ 目录移入 openspec/changes/archive/
+
+# 7. 合并
+git checkout main
+git merge feature/add-user-auth
+git branch -d feature/add-user-auth
+```
+
+完成后 `spec/tasks.md` 里对应任务的完成状态由 AI 自动勾选，`spec/devlog.md` 自动追加一条记录。
+
+> **⚠️ 产出物归属铁律**：单次变更的所有产出物（proposal / design / specs / **plan** / tasks）必须统一放在 `openspec/changes/<name>/` 下，**不可散落**。这是"一键归档、可审计、可回滚"的前提。
+
+---
+
+## 目录结构
 
 ```
-cd existing_repo
-git remote add origin http://git.laobaiyy.com/longcare/longcare-base.git
-git branch -M main
-git push -uf origin main
+.
+├── CLAUDE.md              # Claude Code 工作指引（重要，勿删）
+├── README.md              # 本文件
+├── .gitignore             # 全栈通用 ignore
+│
+├── spec/                  # 【项目级】spec 文档（人工主导）
+│   ├── requirements.md    #   整体需求
+│   ├── design.md          #   整体架构与设计
+│   ├── tasks.md           #   里程碑级任务清单
+│   ├── devlog.md          #   开发日志（AI 自动维护）
+│   └── structure.md       #   目录结构说明
+│
+├── openspec/              # 【需求级】单次变更 spec
+│   ├── config.yaml        #   OpenSpec 配置
+│   ├── changes/
+│   │   └── archive/       #   已完成的变更归档（附示例）
+│   └── specs/             #   单独提炼的长期规格
+│
+├── .claude/               # Claude Code 配置、命令与技能
+│   ├── commands/opsx/     #   /opsx:apply /opsx:archive 等斜杠命令
+│   └── skills/            #   OpenSpec 相关技能
+│
+├── .codebuddy/            # CodeBuddy 配置（若使用 CodeBuddy 国际版）
+│
+├── backend/               # 后端代码（待填）
+├── frontend/              # 前端代码（待填）
+└── prototype/             # 原型设计（待填）
 ```
 
-## Integrate with your tools
+---
 
-- [ ] [Set up project integrations](http://git.laobaiyy.com/longcare/longcare-base/-/settings/integrations)
+## 核心原则
 
-## Collaborate with your team
+### 1. Spec 必须分两级
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+| 层级 | 位置 | 回答的问题 | 变更频率 |
+|------|------|-----------|---------|
+| 项目级 | `spec/` | "我们做什么产品、为什么做" | 低频，人工主导 |
+| 需求级 | `openspec/changes/<name>/` | "这次变更做什么、怎么做" | 高频，AI 产出 |
 
-## Test and Deploy
+**混在一起是灾难的开始**——单次变更细节会污染全局设计，全局决策会被埋在 PR 里。
 
-Use the built-in continuous integration in GitLab.
+### 2. 谁写谁改
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+| 文档 | 作者 | AI 能否擅自动 |
+|------|------|--------------|
+| `spec/requirements.md` | 人工 | ❌ 仅人工明确要求时 |
+| `spec/design.md` | 人工 | ❌ 仅人工明确要求时 |
+| `spec/tasks.md` 内容 | 人工 | ❌ 仅人工明确要求时 |
+| `spec/tasks.md` 状态 | AI | ✅ 归档后自动勾选 |
+| `spec/devlog.md` | AI | ✅ 每次合并后追加 |
+| `openspec/changes/*` | AI 产出 + 人工审阅 | ✅ 工作流中自动生成 |
 
-***
+### 3. 物理上分开"思考 / 规划 / 执行"
 
-# Editing this README
+- **brainstorming** 只产出设计文档（proposal / design / specs），**不碰代码**
+- **writing-plans** 只产出 `plan.md`，**不碰代码**
+- **executing-plans** 才动代码，而且必须严格按 `plan.md` 执行
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+这是对抗 AI 失忆的物理防线——即使某一步 AI 上下文全丢，下一步也能从磁盘上的 spec 文档重新加载继续。
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### 4. 单次变更产出物归一
 
-## Name
-Choose a self-explaining name for your project.
+所有单次变更产出物必须统一放在 `openspec/changes/<name>/` 下：
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+```
+openspec/changes/add-user-auth/
+├── proposal.md        ← brainstorming 产出
+├── design.md          ← brainstorming 产出
+├── specs/auth/spec.md ← brainstorming 产出
+├── plan.md            ← writing-plans 产出（⚠️ 必须落这里）
+└── tasks.md           ← 贯穿全流程的任务清单
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+不要让 `plan.md` 散落到仓库根、`docs/`、`.claude/` 或任何其他位置——**归档 / 审计 / 回滚**都依赖这个归一原则。
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+---
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## 示例变更：照着抄就行
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+`openspec/changes/archive/example-add-user-auth/` 里存了一个**完整的示例变更**，包含：
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+- `proposal.md` — 变更提案
+- `design.md` — 技术方案
+- `specs/auth/spec.md` — 场景式规格
+- `plan.md` — writing-plans 生成的详细实现计划
+- `tasks.md` — 实现任务清单
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+新手第一次用，直接照着这个结构填就行。
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+---
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## 配套文章
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+本模板是以下文章的配套资源：
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+> 《让 AI 稳定交付全栈项目：我的 Claude Code + OpenSpec + Superpowers 三件套实战》
+
+完整方法论、踩坑细节、更多案例请见文章原文。
+
+### 持续更新跟进
+
+<table>
+  <tr>
+    <td align="center" width="220">
+      <img src="./docs/wechat-qr.jpg" width="180" alt="公众号二维码" />
+    </td>
+    <td>
+      <h4>📣 公众号：TangoAI实验室</h4>
+      <p>
+        • 每周更新一篇 AI 开发实战硬核干货<br>
+        • 本模板的后续演进与踩坑记录会第一时间同步<br>
+        • 后台回复 <code>spec</code> 可拿到本仓库最新入口 + 资源清单
+      </p>
+    </td>
+  </tr>
+</table>
+
+---
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+MIT
