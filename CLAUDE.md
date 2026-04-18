@@ -4,15 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概览
 
-这是一个**长护险照护系统**（长期护理保险）项目，全栈多端：
+这是一个 **SpecCoding 全栈开发模板**，基于 Claude Code + OpenSpec + Superpowers 三件套工作流。
 
-- `backend/` — 后端服务
-- `frontend/` — H5 页面 + Flutter App
-- `prototype/` — 原型设计
+- `backend/` — 后端服务（技术栈自选）
+- `frontend/` — 前端（Web / H5 / App 皆可）
+- `prototype/` — 原型设计稿
 - `spec/` — **项目级** spec 文档（整体需求/设计/结构/进度）
 - `openspec/` — **需求级** spec 文档（由 OpenSpec 管理的单个变更）
 
 项目结构详见 `spec/structure.md`。
+
+**使用方式**：克隆本仓库后，先填 `spec/requirements.md` 和 `spec/design.md` 定全局，再在 `spec/tasks.md` 拆任务，之后每个任务走一次「七阶段工作流」（见下文）。
 
 ## Spec 文档两级体系
 
@@ -46,19 +48,20 @@ git branch → openspec scaffold → brainstorming → writing-plans → executi
 | 1. 创建分支 | `git checkout -b feature/<name>` | 每个变更在独立分支上开发 |
 | 2. 脚手架 | `openspec-cn new change "<name>"` | 只创建变更目录和 `.openspec.yaml`，不填内容 |
 | 3. 设计 | `/superpowers:brainstorming` | 探索设计，产出写入 `openspec/changes/<name>/`（proposal.md、design.md、specs/、tasks.md） |
-| 4. 制定计划 | `/superpowers:writing-plans` | 在变更目录下生成实现计划 |
-| 5. 执行 | `/superpowers:executing-plans` | 代码变更 |
+| 4. 制定计划 | `/superpowers:writing-plans` | **产出的 plan.md 必须写入 `openspec/changes/<name>/plan.md`**，与同变更的 proposal / design / specs / tasks 放在同一目录下，**不要**散落到仓库根或其他位置 |
+| 5. 执行 | `/superpowers:executing-plans` | 严格按 `openspec/changes/<name>/plan.md` 执行代码变更 |
 | 6. 归档 | `/opsx:archive` | 变更移入 `openspec/changes/archive/` |
 | 7. 合并代码 | `git merge feature/<name>` | 合并回主分支，删除特性分支 |
 
 ## OpenSpec 变更管理
 
-每个变更在 `openspec/changes/<name>/` 下包含：
+**每个变更的所有产出物必须统一存放在 `openspec/changes/<name>/` 目录下**，禁止散落到仓库其他位置：
 
 - `proposal.md` — 是什么、为什么
 - `design.md` — 如何做、架构决策、风险权衡
 - `specs/<feature>/spec.md` — 需求规格（场景式）
-- `tasks.md` — 实现任务清单
+- `plan.md` — 由 `/superpowers:writing-plans` 生成的详细实现计划（**必须落在本目录**）
+- `tasks.md` — 实现任务清单（checkable）
 
 相关命令：
 - `openspec-cn new change "<name>"` — 创建变更目录
