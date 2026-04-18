@@ -10,11 +10,11 @@
 
 > 让 AI 稳定交付全栈项目——告别"AI 改崩代码 / 失忆 / 跑偏"。
 
-<p align="center">
-  <img src="./docs/wechat-qr.jpg" width="180" alt="微信公众号二维码" />
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/beautifulSoup/speccoding-template@main/docs/wechat-qr.jpg" width="180" alt="微信公众号二维码" />
   <br>
   <sub>📣 扫码关注公众号 <b>TangoAI实验室</b>，每周更新 AI 开发实战干货</sub>
-</p>
+</div>
 
 ---
 
@@ -216,7 +216,7 @@ openspec/changes/add-user-auth/
 <table>
   <tr>
     <td align="center" width="220">
-      <img src="./docs/wechat-qr.jpg" width="180" alt="公众号二维码" />
+      <img src="https://cdn.jsdelivr.net/gh/beautifulSoup/speccoding-template@main/docs/wechat-qr.jpg" width="180" alt="公众号二维码" />
     </td>
     <td>
       <h4>📣 公众号：TangoAI实验室</h4>
