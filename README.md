@@ -23,10 +23,25 @@
 一套**可直接 Clone 即用**的项目骨架，实现文章《让 AI 稳定交付全栈项目》里讲的完整工作流：
 
 - ✅ **两级 Spec 体系**：`spec/` 管项目全局，`openspec/` 管单次变更
+- ✅ **两级分支模型**：`version/v*` 承载一批需求，`feature/*` 隔离单次变更
 - ✅ **七阶段工作流**：`git branch → scaffold → brainstorm → plan → execute → archive → merge`
+- ✅ **协作姿态明确**：方案制定多问 / 列 tradeoff，执行落地尽量自主推进
 - ✅ **三工具协同**：Claude Code 执行、OpenSpec 规格、Superpowers 流程
 - ✅ **全栈骨架**：预留 backend / frontend / prototype 目录
 - ✅ **示例变更**：`openspec/changes/archive/` 里附一个完整示例，可直接照抄
+
+---
+
+## 协作模式：设计靠人决策，执行尽量自主
+
+| 阶段 | 对应工具 | AI 姿态 |
+|------|----------|---------|
+| **方案制定** | brainstorming、writing-plans、需求澄清、架构决策 | **多问、列 tradeoff、设 checkpoint**——关键判断交给人类 |
+| **执行落地** | executing-plans、写代码、跑测试、走 git/openspec 流程 | **尽量自主推进**，方案确认后不要每一步都请示 |
+
+执行阶段只在四种情况下停下来请示：方案与实际冲突、不可逆操作（如 `git push --force` / 改 `main`）、反复尝试同一思路失败、CLAUDE.md 明确要求人工确认的节点（如归档时的 design 提升）。详见 `CLAUDE.md`。
+
+**一句话**：设计前多问，执行中少问。
 
 ---
 
@@ -58,23 +73,38 @@ npm install -g @anthropic-ai/claude-code
 # 安装方式详见 Superpowers 项目文档
 ```
 
-### 3. 定全局 Spec（Phase 0）
+### 3. 版本 kickoff（Phase 0）
 
-按顺序填写：
+每个版本启动一次。**先开版本分支，再让 AI 进入讨论阶段**——不要让 AI 一上来就动 spec 文件。
 
-1. **`spec/requirements.md`** — 项目要做什么、解决什么问题
-2. **`spec/design.md`** — 技术栈、模块划分、数据模型、关键接口
-3. **`spec/tasks.md`** — 把项目拆成 10~30 个里程碑任务
+```bash
+# 从 main 拉版本分支（命名必须为 version/v<semver>）
+git checkout main && git pull
+git checkout -b version/v0.1
+```
 
-> 💡 这一步是 **人工主导 + AI 辅助**。让 AI 帮你梳理初稿，但最终架构决策必须你自己定。
+然后在 Claude Code 中触发 kickoff：
+
+> "开始做 v0.1 版本的 kickoff"
+
+AI 会按 CLAUDE.md 里的「维护节奏」执行：
+
+1. **前置检查**：读分支版本号、读 `git config --get user.initials` 拿你的缩写、提醒先 `git pull`
+2. **多轮讨论澄清**：把本次要写入的需求边界一条条聊清楚（可配合 `/superpowers:brainstorming`），未确认前不动任何 spec 文档
+3. **本地化 confirm**：AI 汇总"新增 X 条 / 修订 Y 条 / 架构是否动"，等你说"确认"
+4. **批量写入** `requirements.md` / `tasks.md` /（必要时）`design.md` / `devlog.md`，每条需求带版本标签 `[v0.1 新增]` 与唯一 ID `R-v0.1-<缩写>-<序号>`，修订老需求时旧条目保留并标"已由 X 取代"
+
+> 💡 在 `main` 等非版本分支上触发 kickoff 时，AI 会降级为"无版本"模式（用日期作标签）。完整规则见 `CLAUDE.md` 的「维护节奏 → ① 版本 kickoff」。
 
 ### 4. 单任务开发循环（Phase 1~N）
 
-每个 `tasks.md` 里的任务，走一次完整七阶段工作流：
+版本分支下每个 task 走一次完整七阶段工作流。**feature 分支从当前所在分支拉出**（通常是版本分支），合并时回到**它被拉出时的那条分支**——所以创建时必须显式记下父分支：
 
 ```bash
-# 1. 创建特性分支
+# 1. 创建特性分支 + 显式记录父分支
+parent=$(git rev-parse --abbrev-ref HEAD)
 git checkout -b feature/add-user-auth
+git config branch.feature/add-user-auth.parent "$parent"
 
 # 2. 脚手架
 openspec-cn new change "add-user-auth"
@@ -92,17 +122,24 @@ openspec-cn new change "add-user-auth"
 /superpowers:executing-plans
 # → 严格按 openspec/changes/add-user-auth/plan.md 执行
 
-# 6. 归档
+# 6. 归档（在合并回父分支前完成）
 /opsx:archive
 # → 整个 add-user-auth/ 目录移入 openspec/changes/archive/
+# → AI 会扫 design.md，若含跨模块影响 / 新依赖 / 数据模型变更，
+#   会请你确认是否提升到 spec/design.md（点头才写）
 
-# 7. 合并
-git checkout main
+# 7. 合并回父分支（不一定是 main）
+parent=$(git config --get branch.$(git rev-parse --abbrev-ref HEAD).parent)
+git checkout "$parent"
 git merge feature/add-user-auth
 git branch -d feature/add-user-auth
 ```
 
-完成后 `spec/tasks.md` 里对应任务的完成状态由 AI 自动勾选，`spec/devlog.md` 自动追加一条记录。
+完成后 `spec/tasks.md` 对应 task 由 AI 自动勾选 ✅，`spec/devlog.md` 自动追加一条记录（注明父分支名）。
+
+> ⚠️ **手工创建过、没记父分支**的 feature 分支：AI 在第 7 步读不到 `branch.*.parent` 配置时会向你确认目标分支，**不会**靠 reflog / merge-base 自行猜。
+>
+> ⚠️ **版本分支 → `main` 的合并**由人工处理；AI 默认不碰 `main`，除非你显式要求。
 
 > **⚠️ 产出物归属铁律**：单次变更的所有产出物（proposal / design / specs / **plan** / tasks）必须统一放在 `openspec/changes/<name>/` 下，**不可散落**。这是"一键归档、可审计、可回滚"的前提。
 
@@ -153,16 +190,19 @@ git branch -d feature/add-user-auth
 
 **混在一起是灾难的开始**——单次变更细节会污染全局设计，全局决策会被埋在 PR 里。
 
-### 2. 谁写谁改
+### 2. 谁写谁改 / 何时写
 
-| 文档 | 作者 | AI 能否擅自动 |
-|------|------|--------------|
-| `spec/requirements.md` | 人工 | ❌ 仅人工明确要求时 |
-| `spec/design.md` | 人工 | ❌ 仅人工明确要求时 |
-| `spec/tasks.md` 内容 | 人工 | ❌ 仅人工明确要求时 |
-| `spec/tasks.md` 状态 | AI | ✅ 归档后自动勾选 |
-| `spec/devlog.md` | AI | ✅ 每次合并后追加 |
-| `openspec/changes/*` | AI 产出 + 人工审阅 | ✅ 工作流中自动生成 |
+项目级 spec 仅在 **版本 kickoff** 与 **openspec 归档** 两个边界上同步。变更开发过程中不动；openspec 变更内部的产出物可自由书写，不污染项目级文档。
+
+| 文档 | AI 何时可动 |
+|------|------------|
+| `spec/requirements.md` | ✅ 仅版本 kickoff 时由人工触发后批量写入（带版本标签 + R-ID） |
+| `spec/design.md` | ✅ kickoff 涉及新架构决策时；归档时检测到跨模块影响 / 新依赖 / 数据模型变更，**人工点头**后才提升 |
+| `spec/tasks.md` 内容 | ✅ 仅 kickoff 时按版本块追加（不得改他人已写的 tasks） |
+| `spec/tasks.md` 状态 | ✅ openspec 归档后自动勾选 ✅ |
+| `spec/devlog.md` | ✅ kickoff 写入摘要 + feature 合回父分支时追加 |
+| `spec/structure.md` | ✅ 添加或删除顶层目录时即时更新 |
+| `openspec/changes/*` | ✅ 工作流中由 brainstorming / writing-plans / executing-plans 自动生成 |
 
 ### 3. 物理上分开"思考 / 规划 / 执行"
 
